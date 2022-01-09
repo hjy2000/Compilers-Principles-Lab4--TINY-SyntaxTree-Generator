@@ -1,0 +1,5 @@
+﻿cl : 命令行 warning D9030: “/Yc”与多处理不兼容；忽略 /MP 开关
+  parse.cpp
+  scan.cpp
+C:\Users\ASUS\source\repos\TINY\scan.cpp(41,29): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+  TINY.vcxproj -> C:\Users\ASUS\source\repos\TINY\x64\Debug\TINY.exe
