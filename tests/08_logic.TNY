@@ -1,0 +1,9 @@
+{ 测试8：逻辑表达式 and / or / not
+  验证 not > and > or 的优先级 }
+read a; read b; read c;
+if (a > 0 and b > 0 or not (c == 0))
+  write 1;
+end;
+if (not a == 0 and (b < 1 or c >= 2))
+  write 2;
+end

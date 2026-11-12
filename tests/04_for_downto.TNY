@@ -1,0 +1,8 @@
+{ 测试4：for ... downto 递减循环 }
+read n;
+fact = 1;
+for i = n downto 1 do
+  fact = fact * i
+enddo
+write fact;
+end

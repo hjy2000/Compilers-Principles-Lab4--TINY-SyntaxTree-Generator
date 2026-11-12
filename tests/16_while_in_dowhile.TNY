@@ -1,0 +1,10 @@
+{ 边界1：while 语句嵌套在 do-while 语句体内 }
+read n;
+do
+  while (n > 0) do
+    n = n - 1;
+  endwhile;
+  x = 1
+while (x > 0)
+write n;
+end

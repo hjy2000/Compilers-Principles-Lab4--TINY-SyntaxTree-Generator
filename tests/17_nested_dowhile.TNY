@@ -1,0 +1,9 @@
+{ 边界2：do-while 嵌套 do-while }
+read n;
+do
+  do
+    n = n - 1
+  while (n > 5)
+while (n > 0);
+write n
+end

@@ -1,0 +1,28 @@
+# Visual Studio 构建产物
+x64/
+Debug/
+Release/
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.res
+*.log
+*.recipe
+*.tlog
+*.lastbuildstate
+*.Build.CppClean.log
+*.vcxproj.user
+
+# Visual Studio 缓存与用户设置
+.vs/
+*.aps
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+
+# 系统文件
+.DS_Store
+Thumbs.db

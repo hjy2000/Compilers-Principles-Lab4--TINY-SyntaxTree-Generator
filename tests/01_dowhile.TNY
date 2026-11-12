@@ -1,0 +1,11 @@
+{ 测试1：do while 循环（实验测试文件2）
+  同时覆盖 if(...) 带括号、无 then、关系运算符两侧无空格 }
+read x;
+if ( x>0 )
+  fact = 1;
+  do
+    fact = fact * x;
+    x = x - 1
+  while ((x>0))
+  write fact;
+end

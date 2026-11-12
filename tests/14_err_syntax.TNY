@@ -1,0 +1,5 @@
+{ 测试14：语法错误，缺少 enddo 与 end，验证错误恢复 }
+read x;
+for i = 1 to 3 do
+  x = x + i
+end;

@@ -38,6 +38,8 @@ public:
 	afx_msg void OnBnClickedShow();
 	// 用户的源程序编辑框
 	CEdit program;
+	// 是否生成语法树的复选框
+	CButton m_gentree;
 	// 路径
 	CString m_file_path;
 	// 输入程序

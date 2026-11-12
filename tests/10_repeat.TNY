@@ -1,0 +1,9 @@
+{ 测试10：repeat ... until 循环（原 TINY 语句，需与扩充后的文法共存） }
+read n;
+count = 0;
+repeat
+  count = count + 1;
+  n = n - 1
+until (n <= 0);
+write count;
+end

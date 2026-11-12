@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma once
 /****************************************************/
 /* File: globals.h                                  */
@@ -26,7 +26,7 @@
 #endif
 
 /* MAXRESERVED = the number of reserved words */
-#define MAXRESERVED 15
+#define MAXRESERVED 18
 
 typedef enum
 /* book-keeping tokens */
@@ -34,10 +34,14 @@ typedef enum
 	ENDFILE, ERROR_INP,
 	/* reserved words */
 	IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE, WHILE, DO, ENDWHILE, FOR, TO, DOWNTO, ENDDO,
+	AND, OR, NOT,
 	/* multicharacter tokens */
 	ID, NUM,
 	/* special symbols */
-	ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, REMAINDER ,NGT,NLT,NEQ,POWER,SUBMINUS
+	/* 注意：NGT 表示 <=（not greater than），NLT 表示 >=（not less than） */
+	ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, REMAINDER, NGT, NLT, NEQ, POWER, SUBMINUS,
+	/* 正则表达式专用符号 */
+	REGASSIGN, RE_OR, RE_CONCAT, RE_CLOSURE
 } TokenTypeInProjece;
 
 extern FILE* source; /* source code text file */
@@ -51,7 +55,9 @@ extern int lineno; /* source line number for listing */
 /**************************************************/
 
 typedef enum { StmtK, ExpK } NodeKind;
-typedef enum { IfK, RepeatK, AssignK, ReadK, WriteK, WhileK, DoWhileK, ForK } StmtKind;
+/* SubAssignK 表示 -= 语句，RegexAssignK 表示 ID := 正则表达式 语句 */
+typedef enum { IfK, RepeatK, AssignK, ReadK, WriteK, WhileK, DoWhileK, ForK, SubAssignK, RegexAssignK } StmtKind;
+/* RegexK 表示正则表达式结点，其 attr.op 记录 | & # 之外的连接关系由树结构体现 */
 typedef enum { OpK, ConstK, IdK } ExpKind;
 
 /* ExpType is used for type checking */

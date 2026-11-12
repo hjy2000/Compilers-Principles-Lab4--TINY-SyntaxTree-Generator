@@ -1,0 +1,9 @@
+{ 测试3：for ... to 递增循环 + 嵌套 for }
+total = 0;
+for i = 1 to 10 do
+  for j = 1 to i do
+    total = total + j;
+  enddo;
+enddo;
+write total;
+end

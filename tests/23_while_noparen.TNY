@@ -1,0 +1,6 @@
+{ 顶层 while 无括号 }
+read n;
+while n > 0 do
+  n = n - 1
+endwhile
+end

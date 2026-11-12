@@ -1,4 +1,4 @@
-/****************************************************/
+ï»¿/****************************************************/
 /* File: scan.c                                     */
 /* The scanner implementation for the TINY compiler */
 /* Compiler Construction: Principles and Practice   */
@@ -11,7 +11,7 @@
 /* states in scanner DFA */
 typedef enum
 {
-	START, INASSIGN, INCOMMENT, INNUM, INID,INGT,INLT,INSUB,DONE //ĞÂÔö±È½Ï×´Ì¬
+	START, INASSIGN, INCOMMENT, INNUM, INID, INGT, INLT, INSUB, INCOLON, DONE
 }
 StateType;
 
@@ -26,6 +26,17 @@ static char lineBuf[BUFLEN]; /* holds the current line */
 int linepos = 0; /* current position in LineBuf */
 int bufsize = 0; /* current size of buffer string */
 int EOF_flag = FALSE; /* corrects ungetNextChar behavior on EOF */
+
+/* resetScanner restores the scanner to its initial state so that
+   analyse() may be called more than once in a single session */
+void resetScanner(void)
+{
+	lineBuf[0] = '\0';
+	linepos = 0;
+	bufsize = 0;
+	EOF_flag = FALSE;
+	tokenString[0] = '\0';
+}
 
 /* getNextChar fetches the next non-blank character
    from lineBuf, reading in a new line if lineBuf is
@@ -64,10 +75,11 @@ static struct
 	char* str;
 	TokenTypeInProjece tok;
 } reservedWords[MAXRESERVED] = { {"if",IF},{"then",THEN},{"else",ELSE},{"end",END},
-{"repeat",REPEAT},{"until",UNTIL},{"read",READ},
-   {"write",WRITE},
-   {"while",WHILE},{"do",DO},{"endwhile",ENDWHILE},{"for",FOR},
-   {"to",TO},{"downto",DOWNTO},{"enddo",ENDDO} };
+	{"repeat",REPEAT},{"until",UNTIL},{"read",READ},
+	{"write",WRITE},
+	{"while",WHILE},{"do",DO},{"endwhile",ENDWHILE},{"for",FOR},
+	{"to",TO},{"downto",DOWNTO},{"enddo",ENDDO},
+	{"and",AND},{"or",OR},{"not",NOT} };
 
 /* lookup an identifier to see if it is a reserved word */
 /* uses linear search */
@@ -90,7 +102,7 @@ TokenTypeInProjece getToken(void)
 {  /* index for storing into tokenString */
 	int tokenStringIndex = 0;
 	/* holds current token to be returned */
-	TokenTypeInProjece currentToken;
+	TokenTypeInProjece currentToken = ERROR_INP;
 	/* current state - always begins at START */
 	StateType state = START;
 	/* flag to indicate save to tokenString */
@@ -102,19 +114,21 @@ TokenTypeInProjece getToken(void)
 		switch (state)
 		{
 		case START:
-			if (isdigit(c))
+			if (isdigit((unsigned char)c))
 				state = INNUM;
-			else if (isalpha(c))
+			else if (isalpha((unsigned char)c))
 				state = INID;
 			else if (c == '=')
-				state = INASSIGN;//ÕâÀïÎªÁË·½±ãÖ±½Ó°Ñ==Õâ¸ö±È½ÏÔËËã·û·Åµ½ÁËassignÕâÀï
+				state = INASSIGN;
 			else if (c == '>')
-				state = INGT;//ĞÂÔöÁ½¸ö±È½Ï×´Ì¬
+				state = INGT;
 			else if (c == '<')
 				state = INLT;
 			else if (c == '-')
 				state = INSUB;
-			else if ((c == ' ') || (c == '\t') || (c == '\n'))
+			else if (c == ':')
+				state = INCOLON;
+			else if ((c == ' ') || (c == '\t') || (c == '\n') || (c == '\r'))
 				save = FALSE;
 			else if (c == '{')
 			{
@@ -139,6 +153,12 @@ TokenTypeInProjece getToken(void)
 				case '/':
 					currentToken = OVER;
 					break;
+				case '%':
+					currentToken = REMAINDER;
+					break;
+				case '^':
+					currentToken = POWER;
+					break;
 				case '(':
 					currentToken = LPAREN;
 					break;
@@ -148,11 +168,14 @@ TokenTypeInProjece getToken(void)
 				case ';':
 					currentToken = SEMI;
 					break;
-				case '%':
-					currentToken = REMAINDER;
+				case '|':
+					currentToken = RE_OR;
 					break;
-				case '^':
-					currentToken = POWER;
+				case '&':
+					currentToken = RE_CONCAT;
+					break;
+				case '#':
+					currentToken = RE_CLOSURE;
 					break;
 				default:
 					currentToken = ERROR_INP;
@@ -161,27 +184,61 @@ TokenTypeInProjece getToken(void)
 			}
 			break;
 		case INGT:
+			/* ">" æˆ– ">=" */
 			state = DONE;
-			if (c == ' ')
+			if (c == '=') currentToken = NLT;
+			else
+			{
+				ungetNextChar();
+				save = FALSE;
 				currentToken = GT;
-			else if (c == '=')
-				currentToken = NLT;
-
+			}
+			break;
 		case INLT:
+			/* "<" æˆ– "<=" æˆ– "<>" */
 			state = DONE;
-			if (c == ' ')
+			if (c == '=') currentToken = NGT;
+			else if (c == '>') currentToken = NEQ;
+			else
+			{
+				ungetNextChar();
+				save = FALSE;
 				currentToken = LT;
-			else if (c == '=')
-				currentToken = NGT;
-			else if (c == '>')
-				currentToken = NEQ;
+			}
+			break;
 		case INSUB:
+			/* "-" æˆ– "-=" */
 			state = DONE;
-			if (c == ' ')
+			if (c == '=') currentToken = SUBMINUS;
+			else
+			{
+				ungetNextChar();
+				save = FALSE;
 				currentToken = MINUS;
-			else if (c == '=')
-				currentToken = SUBMINUS;//¼õ·¨¸³ÖµÔËËã·û
-
+			}
+			break;
+		case INASSIGN:
+			/* "=" æˆ– "==" */
+			state = DONE;
+			if (c == '=') currentToken = EQ;
+			else
+			{
+				ungetNextChar();
+				save = FALSE;
+				currentToken = ASSIGN;
+			}
+			break;
+		case INCOLON:
+			/* ä»…æ”¯æŒ ":="ï¼Œç”¨äºæ­£åˆ™è¡¨è¾¾å¼èµ‹å€¼ */
+			state = DONE;
+			if (c == '=') currentToken = REGASSIGN;
+			else
+			{
+				ungetNextChar();
+				save = FALSE;
+				currentToken = ERROR_INP;
+			}
+			break;
 		case INCOMMENT:
 			save = FALSE;
 			if (c == EOF)
@@ -191,21 +248,8 @@ TokenTypeInProjece getToken(void)
 			}
 			else if (c == '}') state = START;
 			break;
-		case INASSIGN:
-			state = DONE;
-			if (c == ' ')
-				currentToken = ASSIGN;
-			else if (c== '=')
-				currentToken = EQ;//½«±È½ÏÔËËã·ûÖĞµÄµÈÓÚĞŞ¸ÄÎª==
-			else
-			{ /* backup in the input */
-				ungetNextChar();
-				save = FALSE;
-				currentToken = ERROR_INP;
-			}
-			break;
 		case INNUM:
-			if (!isdigit(c))
+			if (!isdigit((unsigned char)c))
 			{ /* backup in the input */
 				ungetNextChar();
 				save = FALSE;
@@ -214,7 +258,7 @@ TokenTypeInProjece getToken(void)
 			}
 			break;
 		case INID:
-			if (!isalpha(c))
+			if (!isalpha((unsigned char)c) && !isdigit((unsigned char)c))
 			{ /* backup in the input */
 				ungetNextChar();
 				save = FALSE;
@@ -229,7 +273,7 @@ TokenTypeInProjece getToken(void)
 			currentToken = ERROR_INP;
 			break;
 		}
-		if ((save) && (tokenStringIndex <= MAXTOKENLEN))
+		if ((save) && (tokenStringIndex < MAXTOKENLEN))
 			tokenString[tokenStringIndex++] = (char)c;
 		if (state == DONE)
 		{

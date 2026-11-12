@@ -1,0 +1,9 @@
+{ 测试2：for 递增循环（实验测试文件1）
+  覆盖 for ... to、if 无 then、运算符无空格 }
+read x;
+if ( 0<x )
+  for  fact = x downto 1 do
+    fact = fact * x;
+  enddo
+  write fact;
+end

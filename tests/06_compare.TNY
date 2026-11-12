@@ -1,0 +1,9 @@
+{ 测试6：全部比较运算符 == <> < > <= >= }
+read a;
+if (a == 0) write 1 end;
+if (a <> 0) write 2 end;
+if (a < 10) write 3 end;
+if (a > 10) write 4 end;
+if (a <= 10) write 5 end;
+if (a >= 10) write 6 end;
+end

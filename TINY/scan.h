@@ -25,6 +25,11 @@ extern char tokenString[MAXTOKENLEN + 1];
  */
 TokenTypeInProjece getToken(void);
 
+/* resetScanner restores the scanner state so that a new
+ * source file can be scanned in the same run
+ */
+void resetScanner(void);
+
 extern  int linepos; /* current position in LineBuf */
 extern  int bufsize; /* current size of buffer string */
 extern  int EOF_flag;

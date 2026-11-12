@@ -1,0 +1,21 @@
+# 统一换行与编码处理策略
+# 源码在仓库中以 LF 保存，在 Windows 工作区检出为 CRLF（VS 习惯）
+
+*.cpp   text eol=crlf
+*.h     text eol=crlf
+*.tny   text eol=crlf
+*.TNY   text eol=crlf
+*.md    text eol=lf
+*.txt   text eol=crlf
+
+# 二进制/特殊编码文件，禁止任何换行转换
+*.rc    binary
+*.docx  binary
+*.sln   binary
+*.vcxproj binary
+*.filters binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.bmp   binary

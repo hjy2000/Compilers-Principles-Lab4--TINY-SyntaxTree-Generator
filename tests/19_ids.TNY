@@ -1,0 +1,9 @@
+{ 边界4：标识符含数字、关键字作前缀（endwhile/enddo/notable/order） }
+read x1;
+notable = 1;
+order = 2;
+x1 = notable + order;
+while (x1 > 0) do
+  x1 = x1 - 1
+endwhile;
+end

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma warning(disable:4996)
 /****************************************************/
 /* File: util.c                                     */
@@ -28,26 +28,39 @@ void printToken(TokenTypeInProjece token, const char* tokenString)
 	case UNTIL:
 	case READ:
 	case WRITE:
-		fprintf(listing,
-			"reserved word: %s\n", tokenString);
+	case WHILE:
+	case DO:
+	case ENDWHILE:
+	case FOR:
+	case TO:
+	case DOWNTO:
+	case ENDDO:
+		fprintf(listing, "reserved word: %s\n", tokenString);
 		break;
+	case AND: fprintf(listing, "and\n"); break;
+	case OR: fprintf(listing, "or\n"); break;
+	case NOT: fprintf(listing, "not\n"); break;
 	case ASSIGN: fprintf(listing, "=\n"); break;
+	case SUBMINUS: fprintf(listing, "-=\n"); break;
+	case REGASSIGN: fprintf(listing, ":=\n"); break;
+	case EQ: fprintf(listing, "==\n"); break;
+	case NEQ: fprintf(listing, "<>\n"); break;
 	case LT: fprintf(listing, "<\n"); break;
 	case GT: fprintf(listing, ">\n"); break;
-	case NGT: fprintf(listing, "<=\n"); break;
-	case NLT: fprintf(listing, ">=\n"); break;
-	case NEQ: fprintf(listing, "<>\n"); break;
-	case EQ: fprintf(listing, "==\n"); break;
+	case NGT: fprintf(listing, "<=\n"); break;   /* not greater than */
+	case NLT: fprintf(listing, ">=\n"); break;   /* not less than */
 	case LPAREN: fprintf(listing, "(\n"); break;
 	case RPAREN: fprintf(listing, ")\n"); break;
 	case SEMI: fprintf(listing, ";\n"); break;
 	case PLUS: fprintf(listing, "+\n"); break;
 	case MINUS: fprintf(listing, "-\n"); break;
-	case SUBMINUS: fprintf(listing, "-=\n"); break;
 	case TIMES: fprintf(listing, "*\n"); break;
 	case OVER: fprintf(listing, "/\n"); break;
 	case REMAINDER: fprintf(listing, "%%\n"); break;
 	case POWER: fprintf(listing, "^\n"); break;
+	case RE_OR: fprintf(listing, "|\n"); break;
+	case RE_CONCAT: fprintf(listing, "&\n"); break;
+	case RE_CLOSURE: fprintf(listing, "#\n"); break;
 	case ENDFILE: fprintf(listing, "EOF\n"); break;
 	case NUM:
 		fprintf(listing,
@@ -80,6 +93,7 @@ Node* newStmtNode(StmtKind kind)
 		t->sibling = NULL;
 		t->nodekind = StmtK;
 		t->kind.stmt = kind;
+		t->attr.op = ENDFILE; /* 无意义初值，避免打印语法树时读到未初始化数据 */
 		t->lineno = lineno;
 	}
 	return t;
@@ -99,6 +113,7 @@ Node* newExpNode(ExpKind kind)
 		t->sibling = NULL;
 		t->nodekind = ExpK;
 		t->kind.exp = kind;
+		t->attr.op = ENDFILE; /* 无意义初值 */
 		t->lineno = lineno;
 		t->type = Void;
 	}
@@ -138,6 +153,12 @@ static void printSpaces(void)
 		fprintf(listing, " ");
 }
 
+/* 结点名字可能因语法出错而为空，这里统一定义空名的显示形式 */
+static const char* nodeName(Node* tree)
+{
+	return (tree->attr.name != NULL) ? tree->attr.name : "<error>";
+}
+
 /* procedure printTree prints a A tree to the
  * listing file using indentation to indicate subtrees
  */
@@ -157,10 +178,16 @@ void printTree(Node* tree)
 				fprintf(listing, "Repeat\n");
 				break;
 			case AssignK:
-				fprintf(listing, "Assign to: %s\n", tree->attr.name);
+				fprintf(listing, "Assign to: %s\n", nodeName(tree));
+				break;
+			case SubAssignK:
+				fprintf(listing, "SubAssign (-=) to: %s\n", nodeName(tree));
+				break;
+			case RegexAssignK:
+				fprintf(listing, "RegexAssign (:=) to: %s\n", nodeName(tree));
 				break;
 			case ReadK:
-				fprintf(listing, "Read: %s\n", tree->attr.name);
+				fprintf(listing, "Read: %s\n", nodeName(tree));
 				break;
 			case WriteK:
 				fprintf(listing, "Write\n");
@@ -172,10 +199,11 @@ void printTree(Node* tree)
 				fprintf(listing, "DoWhile\n");
 				break;
 			case ForK:
-				fprintf(listing, "For\n");
+				fprintf(listing, "For (%s)\n",
+					(tree->attr.op == DOWNTO) ? "downto" : "to");
 				break;
 			default:
-				fprintf(listing, "Unknown ExpNode kind\n");
+				fprintf(listing, "Unknown StmtNode kind\n");
 				break;
 			}
 		}
@@ -190,7 +218,7 @@ void printTree(Node* tree)
 				fprintf(listing, "Const: %d\n", tree->attr.val);
 				break;
 			case IdK:
-				fprintf(listing, "Id: %s\n", tree->attr.name);
+				fprintf(listing, "Id: %s\n", nodeName(tree));
 				break;
 			default:
 				fprintf(listing, "Unknown ExpNode kind\n");
